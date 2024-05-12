@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Channelytics</title>
+</head>
+
+<body>
+	<h1>Welcome to Channelytics!</h1>
+
+	<!-- Input for searching YouTube channel -->
+	<input type="text" id="channelSearch" placeholder="Search YouTube Channel">
+	<button onclick="searchChannel()">Search</button>
+
+	<!-- Div to display the channel's analytics -->
+	<div id="analyticsDisplay"></div>
+
+	<script>
+		// YouTube Data API key
+		const API_KEY = 'AIzaSyDMCH582BFVy0yT47sdCy_MZT7NOT1d9Fs';
+
+		// Function to search for a YouTube channel
+		function searchChannel() {
+			const query = document.getElementById('channelSearch').value;
+
+			// Perform a search using the YouTube Data API
+			fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=channel&key=${API_KEY}`)
+				.then(response => response.json())
+				.then(data => {
+					const channel = data.items[0];
+					const channelId = channel.id.channelId;
+
+					// Fetch channel analytics
+					fetchChannelAnalytics(channelId);
+				})
+				.catch(error => {
+					console.error('Error searching for channel:', error);
+				});
+		}
+
+		// Function to fetch channel analytics
+		function fetchChannelAnalytics(channelId) {
+			fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${API_KEY}`)
+				.then(response => response.json())
+				.then(data => {
+					const channel = data.items[0];
+					const stats = channel.statistics;
+
+					// Display the analytics
+					displayAnalytics(stats);
+				})
+				.catch(error => {
+					console.error('Error fetching channel analytics:', error);
+				});
+		}
+
+		// Function to display the channel analytics
+		function displayAnalytics(stats) {
+			const analyticsDisplay = document.getElementById('analyticsDisplay');
+			analyticsDisplay.innerHTML = `
+				<h2>Channel Analytics</h2>
+				<p>Views: ${stats.viewCount}</p>
+				<p>Subscribers: ${stats.subscriberCount}</p>
+				<p>Videos: ${stats.videoCount}</p>
+			`;
+		}
+		// Function to display the channel analytics
+function displayAnalytics(stats) {
+	const analyticsDisplay = document.getElementById('analyticsDisplay');
+	const randomizedSubscribers = getRandomizedSubscribers(stats.subscriberCount);
+	analyticsDisplay.innerHTML = `
+		<h2>Channel Analytics</h2>
+		<p>Views: ${stats.viewCount}</p>
+		<p>Subscribers: ${randomizedSubscribers}</p>
+		<p>Videos: ${stats.videoCount}</p>
+	`;
+}
+
+// Function to generate a randomized subscriber count
+function getRandomizedSubscribers(subscriberCount) {
+	const firstThreeDigits = subscriberCount.slice(0, 3);
+	const remainingDigits = subscriberCount.slice(3);
+	const randomizedDigits = getRandomDigits(remainingDigits.length);
+	return `${firstThreeDigits}${randomizedDigits}`;
+}
+
+// Function to generate random digits
+function getRandomDigits(length) {
+	let randomDigits = '';
+	for (let i = 0; i < length; i++) {
+		randomDigits += Math.floor(Math.random() * 10); // Generates random digit between 0 and 9
+	}
+	return randomDigits;
+}
+	</script>
+	<style>
+body {
+font-family: helvetica
+}
+</style>
+</body>
+
+</html>
